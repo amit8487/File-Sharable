@@ -1,0 +1,30 @@
+Simple File Sharing Portal
+|
+|-- LICENSE
+|-- README.md
+|-- requirements.txt
+|-- .gitignore
+|
+`-- app/
+    |-- __init__.py
+    |-- main.py
+    |
+    |-- api/
+    |   |-- __init__.py
+    |   |-- master_router.py
+    |   `-- router/  <-- Current folder
+    |       `-- share.py  <-- Current file
+    |
+    |-- core/
+    |   `-- __init__.py
+    |
+    |-- database/
+    |   `-- __init__.py
+    |
+    `-- schemas/
+        |-- __init__.py
+        `-- share/
+
+Arrow legend:
+<-- Current folder: app/api/router/
+<-- Current file:   app/api/router/share.py
