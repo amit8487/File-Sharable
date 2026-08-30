@@ -1,9 +1,10 @@
 Simple File Sharing Portal
 |
+|-- .gitignore
 |-- LICENSE
 |-- README.md
 |-- requirements.txt
-|-- .gitignore
+|-- venv/
 |
 `-- app/
     |-- __init__.py
@@ -12,11 +13,15 @@ Simple File Sharing Portal
     |-- api/
     |   |-- __init__.py
     |   |-- master_router.py
-    |   `-- router/  <-- Current folder
-    |       `-- share.py  <-- Current file
+    |   `-- router/
+    |       |-- __init__.py
+    |       `-- share.py
     |
     |-- core/
-    |   `-- __init__.py
+    |   |-- __init__.py
+    |   `-- utiles/
+    |       |-- __init__.py
+    |       `-- logic.py
     |
     |-- database/
     |   `-- __init__.py
@@ -24,7 +29,9 @@ Simple File Sharing Portal
     `-- schemas/
         |-- __init__.py
         `-- share/
+            `-- (empty)
 
-Arrow legend:
-<-- Current folder: app/api/router/
-<-- Current file:   app/api/router/share.py
+Notes:
+- Current folder: app/api/router/
+- Current file: app/api/router/share.py
+- The app/core/utiles directory is present and contains logic.py
