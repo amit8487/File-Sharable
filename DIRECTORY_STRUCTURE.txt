@@ -24,14 +24,16 @@ Simple File Sharing Portal
     |       `-- logic.py
     |
     |-- database/
-    |   `-- __init__.py
+    |   |-- __init__.py
+    |   |-- models.py
+    |   `-- session.py
     |
     `-- schemas/
         |-- __init__.py
         `-- share/
             `-- (empty)
 
-Notes:
-- Current folder: app/api/router/
-- Current file: app/api/router/share.py
-- The app/core/utiles directory is present and contains logic.py
+Current focus:
+- app/api/router/share.py
+- app/core/utiles/logic.py
+- app/main.py
