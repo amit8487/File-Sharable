@@ -11,7 +11,7 @@ class Share(SQLModel, table = True):
     user_id: Optional[UUID] = Field(default=None)
     password_hash: Optional[str] = Field(default=None)
     expiry_at: datetime 
-    created_at: datetime
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     download_limit: int = Field(default=5)
     download_count: int = Field(default=0)
     total_size: int = Field(default=0)
@@ -22,10 +22,10 @@ class File(SQLModel, table = True):
     __tablename__ = "files"
     id: UUID = Field(primary_key=True, default_factory=uuid4)
     share_id: UUID = Field(foreign_key="shares.id", index=True)
-    original_name:str
+    original_filename:str
     stored_filename:str = Field(unique=True)
     file_size: int
-    mime_type:str
+    mime_type:Optional[str] = Field(default=None)
     created_at:datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     share: "Share" = Relationship(back_populates="files")
