@@ -1,17 +1,28 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import computed_field
 from pathlib import Path 
 from functools import lru_cache
 
 
 class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env")
+
     #Storage Path
     storage_path: Path = Path("uploads")
 
     #File size Limit
     max_file_size_mb:int = 100
     max_total_file_size_mb:int = 100
-    max_file_size_bytes:int = max_file_size_mb*1024*1024
-    max_total_file_size_bytes:int = max_total_file_size_mb*1024*1024
+
+    @computed_field
+    @property
+    def max_file_size_bytes(self)->int:
+        return self.max_file_size_mb*1024*1024
+    
+    @computed_field
+    @property
+    def max_total_file_size_bytes(self)->int:
+        return self.max_total_file_size_mb*1024*1024
     
     #File Expiry (in days)
     default_expiry_days:int = 2
