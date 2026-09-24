@@ -14,7 +14,7 @@ async def create_db_tables():
         from app.database.models import Share, File # noqa: F401
         await connection.run_sync(SQLModel.metadata.create_all)
 
-async_session = sessionmaker(
+async_session = sessionmaker( # we write async_session outside b/c it works as factory. when i write it inside the get_session() function it starts each time. here it start's once
     bind = engine, 
     class_= AsyncSession,
     expire_on_commit= False,
