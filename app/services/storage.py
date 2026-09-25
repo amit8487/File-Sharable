@@ -1,10 +1,14 @@
 from pathlib import Path
 from typing import AsyncGenerator
 import aiofiles
+from app.core.config import get_settings
+
+setting = get_settings()
 
 chunkSize = 64*1024 #64KB chunk size
 class LocalStorage:
     def __init__(self, base_path:str):
+        #self.base_path = Path(base_path)
         self.base_path = Path(base_path)
         self.base_path.mkdir(parents=True, exist_ok=True)
 

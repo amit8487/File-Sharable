@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env")
 
     #Storage Path
-    storage_path: Path = Path("uploads")
+    storage_path: Path = Path("upload")
 
     #File size Limit
     max_file_size_mb:int = 100

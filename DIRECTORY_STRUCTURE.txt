@@ -4,6 +4,8 @@ Simple File Sharing Portal
 |-- LICENSE
 |-- README.md
 |-- requirements.txt
+|-- upload/
+|   `-- (empty)
 |-- venv/
 |
 `-- app/
@@ -12,6 +14,7 @@ Simple File Sharing Portal
     |
     |-- api/
     |   |-- __init__.py
+    |   |-- dependencies.py
     |   |-- master_router.py
     |   `-- router/
     |       |-- __init__.py
@@ -19,6 +22,7 @@ Simple File Sharing Portal
     |
     |-- core/
     |   |-- __init__.py
+    |   |-- config.py
     |   `-- utiles/
     |       |-- __init__.py
     |       `-- logic.py
@@ -28,10 +32,11 @@ Simple File Sharing Portal
     |   |-- models.py
     |   `-- session.py
     |
-    `-- schemas/
+    |-- schemas/
+    |   `-- __init__.py
+    `-- services/
         |-- __init__.py
-        `-- share/
-            `-- (empty)
+        `-- storage.py
 
 Current focus:
 - app/api/router/share.py
