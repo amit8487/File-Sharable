@@ -5,7 +5,6 @@ router = APIRouter(prefix="/share", tags=["ShareFile"])
 
 @router.post("/upload/")
 async def upload(files: list[UploadFile] | None = None):
-    #file_info = {}
     
     if files is None or not files or all(f == "" for f in files):
         raise HTTPException(status_code=400, detail="No file Uploaded")
