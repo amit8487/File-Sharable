@@ -2,10 +2,14 @@ from pathlib import Path
 from typing import AsyncGenerator
 import aiofiles
 from app.core.config import get_settings
+from fastapi import UploadFile
+
 
 setting = get_settings()
 
-chunkSize = 64*1024 #64KB chunk size
+#64KB Chunk Size
+chunkSize = 64*1024
+
 class LocalStorage:
     def __init__(self, base_path:str):
         #self.base_path = Path(base_path)
@@ -23,16 +27,21 @@ class LocalStorage:
         
         async with aiofiles.open(filePath, "rb") as f:
             while True:
-                chunk = await f.read(chunkSize) #It reads 64KB and returns Yield to user and again and again
+                #It reads 64KB and returns Yield to user and again and again
+                chunk = await f.read(chunkSize) 
                 if not chunk:
                     break
                 yield chunk
 
-    async def save_file(self, storedFileName: str, content: bytes) -> None:
+    async def save_file(self, storedFileName: str, upload_file: UploadFile) -> int:
         filePath = self.base_path/storedFileName
-
+        total_size = 0
         async with aiofiles.open(filePath, "wb") as f:
-            await f.write(content)
+            
+            while chunk:= await upload_file.read(chunkSize):
+                await f.write(chunk)
+                total_size+=len(chunk)
+        return total_size
 
     async def delete_file(self, storedFileName:str) -> None:
         filePath = self.base_path/storedFileName
