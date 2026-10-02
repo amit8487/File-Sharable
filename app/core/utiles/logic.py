@@ -14,6 +14,6 @@ def generate_code() -> str:
 
 
 #rename file
-def rename_file(original_filename:str) -> str:
+def make_stored_filename(original_filename:str) -> str:
     extension = Path(original_filename).suffix
     return f"{uuid4()}{extension}" 

@@ -21,7 +21,7 @@ class Share(SQLModel, table = True):
 class File(SQLModel, table = True):
     __tablename__ = "files"
     id: UUID = Field(primary_key=True, default_factory=uuid4)
-    share_id: UUID = Field(foreign_key="shares.id", index=True)
+    share_id: UUID = Field(foreign_key="shares.id", index=True) # Primary key <- shares table
     original_filename:str
     stored_filename:str = Field(unique=True)
     file_size: int
