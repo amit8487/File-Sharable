@@ -16,7 +16,7 @@ class UploadResponse(BaseModel):
 
 
 class UploadParams(BaseModel):
-    password: Optional[str] = Field(default=None)
+    password_hash: str | None = Field(default=None)
     expiry_days: int | None = Field(default = None, ge = 1, le = 5)
     download_limit: int | None = Field(default = None, ge = 1, le = 5)
 

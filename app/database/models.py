@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 from typing import List, Optional
 from uuid import UUID, uuid4
 
@@ -11,7 +11,7 @@ class Share(SQLModel, table = True):
     user_id: Optional[UUID] = Field(default=None)
     password_hash: Optional[str] = Field(default=None)
     expiry_at: datetime 
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     download_limit: int = Field(default=5)
     download_count: int = Field(default=0)
     total_size: int = Field(default=0)
