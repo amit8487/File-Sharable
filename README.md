@@ -250,7 +250,7 @@ Released under the [MIT License](LICENSE).
 
 <br/>
 
-**Visit. Share. Leave.** ⚡
+⚡ **Visit. Share. Leave.** ⚡
 
 <sub><a href="#-quickshare">⬆ Back to top</a></sub>
 
