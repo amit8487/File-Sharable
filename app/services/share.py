@@ -2,8 +2,10 @@ from datetime import datetime, timedelta, UTC
 
 from fastapi import UploadFile, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlmodel import select
+from sqlalchemy.orm import selectinload
 
-from ..schemas.fileschema import UploadResponse, UploadParams, FileInfo
+from ..schemas.fileschema import UploadResponse, UploadParams, FileInfo, ShareInfoResponse
 from ..core.config import get_settings
 from ..database.models import Share, File
 from .storage import LocalStorage
@@ -88,3 +90,6 @@ class ShareService:
                 for f in share.files
                 ],
         )
+
+
+        async def get_share_info(self, code: str) -> ShareInfoResponse
