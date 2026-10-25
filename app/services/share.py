@@ -64,20 +64,27 @@ class ShareService:
             total_size = total_file_size,
         )
 
+        created_files = []
         for stored_filename, original_filename, size, mime_type in saved:
-            share.files.append(File(
+            file_record = File(
                 original_filename = original_filename,
                 stored_filename=stored_filename,
                 file_size = size,
                 mime_type = mime_type,
-            ))
+            )
+            share.files.append(file_record)
+            created_files.append(file_record)
 
         self.session.add(share)
         await self.session.commit()
         await self.session.refresh(share)
+        await self.session.refresh(share, attribute_names=["files"]) #It is used to refresh files table
         
         return UploadResponse(
             code = share.unique_code,
             expires_at = share.expiry_at,
-            files = [FileInfo(filename=fn, size = sz) for _, fn, sz, _ in saved],
+            files = [
+                FileInfo(filename=f.original_filename, size=f.file_size, file_id=f.id)
+                for f in share.files
+                ],
         )
