@@ -9,7 +9,8 @@ from ..schemas.fileschema import UploadResponse, UploadParams, FileInfo, ShareIn
 from ..core.config import get_settings
 from ..database.models import Share, File
 from .storage import LocalStorage
-from ..core.utiles.logic import generate_code, make_stored_filename, check_mime_type
+from ..core.utils.logic import generate_code, make_stored_filename, check_mime_type
+from ..core.utils.redis_session import create_session_token
 from ..core.security import hashed_password
 
 
@@ -92,4 +93,32 @@ class ShareService:
         )
 
 
-        async def get_share_info(self, code: str) -> ShareInfoResponse
+    async def get_share_info(self, code: str) -> ShareInfoResponse:
+        statement = select(Share).where(Share.unique_code==code).options(selectinload(Share.files))
+        result = await self.session.exec(statement)
+        share = result.first()
+
+        if not share:
+            raise HTTPException(404, "Share not found")
+
+        expiry_at = share.expires_at 
+        if expiry_at.tzinfo is None: #tempory remove it in postgresSql
+            expiry_at = expiry_at.replace(tzinfo = UTC)
+        
+        if expiry_at < datetime.now(UTC):
+            raise HTTPException(410, "Share has expired")
+
+        token = await create_session_token(str(share.id))
+
+        file_list = [
+            FileInfo(file_id = f.id, filename = f.original_filename, size = f.file_size)
+            for f in share.files
+        ]
+
+        return ShareInfoResponse(
+            code = share.unique_code,
+            password_protected = share.password_hash is not None,
+            expires_at = share.expiry_at,
+            files = file_list,
+            session_token = token
+        )

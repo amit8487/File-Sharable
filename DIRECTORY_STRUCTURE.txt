@@ -1,11 +1,14 @@
 Simple File Sharing Portal
 |
+|-- .git/
 |-- .gitignore
 |-- LICENSE
 |-- README.md
 |-- requirements.txt
+|-- database.db
+|-- DIRECTORY_STRUCTURE.txt
 |-- upload/
-|   `-- (empty)
+|   `-- uploaded files
 |-- venv/
 |
 `-- app/
@@ -23,9 +26,12 @@ Simple File Sharing Portal
     |-- core/
     |   |-- __init__.py
     |   |-- config.py
-    |   `-- utiles/
+    |   |-- redis_client.py
+    |   |-- security.py
+    |   `-- utils/
     |       |-- __init__.py
-    |       `-- logic.py
+    |       |-- logic.py
+    |       `-- redis_session.py
     |
     |-- database/
     |   |-- __init__.py
@@ -33,12 +39,10 @@ Simple File Sharing Portal
     |   `-- session.py
     |
     |-- schemas/
-    |   `-- __init__.py
+    |   |-- __init__.py
+    |   `-- fileschema.py
+    |
     `-- services/
         |-- __init__.py
+        |-- share.py
         `-- storage.py
-
-Current focus:
-- app/api/router/share.py
-- app/core/utiles/logic.py
-- app/main.py

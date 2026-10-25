@@ -23,4 +23,3 @@ class UploadParams(BaseModel):
 class ShareInfoResponse(UploadResponse):
     password_protected: bool
     session_token: str
-
