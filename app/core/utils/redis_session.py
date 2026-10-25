@@ -1,6 +1,6 @@
 import json
 from uuid import uuid4
-from .redis_client import redis_client as rc
+from ..redis_client import redis_client as rc
 
 SESSION_TTL = 20*60
 
