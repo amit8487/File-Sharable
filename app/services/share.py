@@ -1,6 +1,8 @@
 from datetime import datetime, timedelta, UTC
+from uuid import UUID
 
-from fastapi import UploadFile, HTTPException
+from fastapi import UploadFile, HTTPException, status
+from fastapi.responses import StreamingResponse
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlmodel import select
 from sqlalchemy.orm import selectinload
@@ -10,7 +12,7 @@ from ..core.config import get_settings
 from ..database.models import Share, File
 from .storage import LocalStorage
 from ..core.utils.logic import generate_code, make_stored_filename, check_mime_type
-from ..core.utils.redis_session import create_session_token
+from ..core.utils.redis_session import create_session_token, get_session_data, try_mark_counted
 from ..core.security import hashed_password, verify_password
 
 
@@ -21,7 +23,10 @@ class ShareService:
     
     async def upload(self, files: list[UploadFile], param: UploadParams) -> UploadResponse:
         if files is None or not files or all(f == "" for f in files):
-            raise HTTPException(400, "No files uploaded")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="No files uploaded",
+            )
         
         settings = get_settings()
 
@@ -46,7 +51,10 @@ class ShareService:
 
             if size > settings.max_file_size_bytes:
                 await self.storage.delete_file(stored_filename)
-                raise HTTPException(400, f"File {original_filename} exceeds size limit")
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"File {original_filename} exceeds size limit",
+                )
             
             total_file_size+=size
 
@@ -54,7 +62,10 @@ class ShareService:
                 for i, *_ in saved:
                     await self.storage.delete_file(i)
                 await self.storage.delete_file(stored_filename)
-                raise HTTPException(400, "Total size exceeds limit")
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Total size exceeds limit",
+                )
 
             saved.append((stored_filename, original_filename, size, mime_type))
 
@@ -95,22 +106,23 @@ class ShareService:
     async def get_share_info(self, code: str, password:str|None = None) -> ShareInfoResponse:
         statement = select(Share).where(Share.unique_code==code).options(selectinload(Share.files))
         result = await self.session.exec(statement)
-        share = result.first()
+        share = result.first() #changed it from .first to .one
 
         # Data check in database
         if not share:
-            raise HTTPException(404, "Share not found")
-
-         # --- DEBUG START ---
-        print(f"DEBUG: Received password from header: {repr(password)}")
-        print(f"DEBUG: Stored hash from database: {repr(share.password_hash)}")
-        # --- DEBUG END ---
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Share not found",
+            )
 
         # Password validation
         if share.password_hash is not None and (
             not password or not verify_password(password, share.password_hash)
         ):
-            raise HTTPException(401, "Password required or incorrect")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Password required or incorrect",
+            )
 
 
         # Time check
@@ -119,7 +131,17 @@ class ShareService:
             expiry_at = expiry_at.replace(tzinfo = UTC)
         
         if expiry_at < datetime.now(UTC):
-            raise HTTPException(410, "Share has expired")
+            raise HTTPException(
+                status_code=status.HTTP_410_GONE,
+                detail="Share has expired",
+            )
+
+        #Download limit check
+        if share.download_count>=share.download_limit:
+            raise HTTPException(
+                status_code=status.HTTP_410_GONE,
+                detail="You have reached download limit",
+            )
 
         #token creation
         token = await create_session_token(str(share.id))
@@ -135,4 +157,74 @@ class ShareService:
             expires_at = share.expiry_at,
             files = file_list,
             session_token = token
+        )
+
+
+    async def download_File(self, code:str, file_id:UUID, X_session_token:str):
+        statement = select(Share).where(Share.unique_code == code)
+        result = await self.session.exec(statement)
+        share = result.first()
+
+        if not share:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail= "File not found"
+                )
+        
+        if share.download_count>=share.download_limit:
+            raise HTTPException(
+                status_code=status.HTTP_410_GONE,
+                detail= "You have reached Download limit",
+                )
+
+        #fetch File data
+        file_record = await self.session.get(File, file_id)
+
+        if not file_record:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="File not found"
+            )
+
+        if file_record.share_id != share.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail= "You are accessing wrong file",
+                )
+
+        #Fetch session token
+        session_data = await get_session_data(X_session_token)
+
+        if session_data is None:
+            raise HTTPException(
+                status_code= status.HTTP_401_UNAUTHORIZED,
+                detail = "Invalid or expired session token",
+            )
+
+        if session_data.get("share_id") != str(share.id):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Session does not belong to this share",
+            )
+
+        # Check file in storage
+        if not await self.storage.file_exists(file_record.stored_filename):
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="File Missing from storage"
+            )
+
+        #file count increaes
+        if await try_mark_counted(X_session_token):
+            share.download_count+=1
+            self.session.add(share)
+            await self.session.commit()
+        
+
+        return StreamingResponse(
+            self.storage.get_file(file_record.stored_filename),
+            media_type=file_record.mime_type or "application/octet-stream",
+            headers={
+                "Content-Disposition": f'attachment; filename="{file_record.original_filename}"'
+            }
         )

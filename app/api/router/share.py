@@ -1,4 +1,7 @@
 from fastapi import APIRouter, HTTPException, UploadFile, Form, Header
+
+from uuid import UUID
+
 from ...schemas.fileschema import UploadParams, UploadResponse, ShareInfoResponse
 from typing import Annotated
 from ..dependencies import ShareServiceDep
@@ -29,3 +32,13 @@ async def get_info(
     x_share_password: str | None = Header(default = None),
     ):
     return await service.get_share_info(code, x_share_password)
+
+
+@router.get("/{code}/files/{file_id}")
+async def download_file(
+    code: str,
+    file_id: UUID,
+    service: ShareServiceDep,
+    x_session_token: str|None = Header(default=None),
+):
+    return await service.download_File(code, file_id, x_session_token)
