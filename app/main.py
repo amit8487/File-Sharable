@@ -1,14 +1,26 @@
+import asyncio
+import logging
 from fastapi import FastAPI
 from scalar_fastapi import get_scalar_api_reference
+from contextlib import asynccontextmanager
 
 from app.api.master_router import master_router
 from app.database.session import create_db_tables
-from contextlib import asynccontextmanager
+from app.core.utils.cleanup import cleanup_expired_files
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
+)
 
 @asynccontextmanager
 async def lifespan_handler(app: FastAPI):
     await create_db_tables()
+
+    task = asyncio.create_task(cleanup_expired_files())
     yield
+
+    task.cancel()
 
 
 app = FastAPI(
