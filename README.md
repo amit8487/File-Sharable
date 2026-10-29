@@ -166,8 +166,8 @@ flowchart TD
 | Phase | Focus | Status |
 | :-: | :--- | :-: |
 | **1** | Core backend: upload, codes, multi-file shares, streaming storage, bcrypt passwords, expiry, download limits | ✅ Done |
-| **2** | Download flow: streaming endpoint, password verification, QR codes | 🔨 Next |
-| **3** | Cleanup: background task for expired shares and orphaned files | 📋 Planned |
+| **2** | Download flow: streaming endpoint, password verification, QR codes | ✅ Done |
+| **3** | Cleanup: background task for expired shares and orphaned files | ✅ Done |
 | **4** | Frontend: upload and download pages in HTML + CSS + Vanilla JS | 📋 Planned |
 | **5** | Accounts: optional registration, JWT auth, device tracking and caps | 📋 Planned |
 | **6** | Production: Cloudflare R2, PostgreSQL, public deployment | 📋 Planned |
