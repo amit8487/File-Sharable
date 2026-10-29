@@ -10,6 +10,7 @@
 ![License](https://img.shields.io/badge/license-MIT-3B82F6?style=for-the-badge)
 ![Python](https://img.shields.io/badge/python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/backend-FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
+![Redis](https://img.shields.io/badge/cache-Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white)
 
 <br/>
 
@@ -39,8 +40,7 @@ It's inspired by tools like **iLovePDF**: visit, do the work, leave. No sign-up 
 | Configurable **download limits** | Same frictionless core experience |
 
 > [!NOTE]
-> **Project status:** QuickShare is in active development. The backend API works and can be tested locally through the built-in API docs. The frontend is planned but not built yet.
-
+> **Project status:** The **backend API is complete and working**. The **frontend UI is currently in development** (HTML + CSS + Vanilla JS). Until it ships, you can try everything through the built-in API docs.
 ---
 
 ## ✨ Features
@@ -54,6 +54,8 @@ It's inspired by tools like **iLovePDF**: visit, do the work, leave. No sign-up 
 | 🧩 | **Streaming storage** | Files are read and written in chunks, so memory usage stays constant even for big uploads |
 | 🗄️ | **Metadata persistence** | Share and file metadata live in async SQLite, while the actual bytes sit in a separate storage layer |
 | 🔐 | **Password protection** | Optional, hashed with bcrypt. The plain password is never stored |
+| ⚡ | **Redis session tokens** | Prevents race conditions and accurately tracks unique download sessions |
+| 🧹 | **Automated cleanup** | Background task deletes expired shares and orphaned files from disk |
 | ⏳ | **Configurable expiry** | Set an expiration window per share |
 | 📥 | **Download limits** | Cap how many times a share can be downloaded |
 | 🧱 | **Pluggable storage** | Local filesystem today, Cloudflare R2 tomorrow, with minimal changes |
@@ -62,10 +64,6 @@ It's inspired by tools like **iLovePDF**: visit, do the work, leave. No sign-up 
 
 ### 🔜 Planned
 
-- 📥 Download endpoint with streaming responses
-- 🔑 Password prompt and verification flow on download
-- 📱 QR code generation for share links
-- 🧹 Background task to delete expired shares and orphaned files
 - 👤 Optional user registration and login with JWT auth
 - 📊 Device access tracking and device caps for logged-in users
 - 🖥️ Minimal frontend (HTML + CSS + Vanilla JS) for upload and download
@@ -81,10 +79,15 @@ It's inspired by tools like **iLovePDF**: visit, do the work, leave. No sign-up 
 
 ```mermaid
 flowchart LR
-    A["📤 Upload file(s)"] --> B["🔑 Get 6-char code<br/>+ QR (planned)"]
+    A["📤 Upload file(s)"] --> B["🔑 Get 6-char code<br/>+ QR code"]
     B --> C["📨 Share the code"]
     C --> D["⌨️ Recipient enters code<br/>or scans QR"]
-    D --> E["📥 Download"]
+    D --> E{"🔐 Password set?"}
+    E -->|Yes| F["Enter password"]
+    E -->|No| G["📥 Streaming download"]
+    F --> G
+    G --> H["⏳ Share expires after time<br/>or download limit"]
+    H --> I["🧹 Background cleanup<br/>removes it"]
 ```
 
 ### 🏗️ Architecture
@@ -93,16 +96,21 @@ The backend is layered, so routing, business logic, storage and persistence don'
 
 ```mermaid
 flowchart TD
-    Client["🌐 Client"] --> Routes["🛣️ Routes<br/>FastAPI"]
-    Routes --> Services["🧠 Services<br/>business logic"]
-    Services --> Storage["📁 Storage layer<br/>local → Cloudflare R2"]
-    Services --> DB[("🗄️ Metadata DB<br/>SQLite → PostgreSQL")]
+    Client["🌐 Client"] -->|HTTP| API["🛣️ FastAPI routes"]
+    API --> Services["🧠 Services<br/>business logic"]
+    Services --> Redis[("⚡ Redis<br/>session tokens")]
+    Services --> DB[("🗄️ SQLite<br/>metadata · PostgreSQL in prod")]
+    Services --> Storage["📁 Local storage<br/>Cloudflare R2 in prod"]
+    Cleanup["🧹 Background cleanup task"] -.-> DB
+    Cleanup -.-> Storage
 
     style Client fill:#e0f2f1,stroke:#009688,color:#004d40
-    style Routes fill:#e3f2fd,stroke:#1e88e5,color:#0d47a1
+    style API fill:#e3f2fd,stroke:#1e88e5,color:#0d47a1
     style Services fill:#fff3e0,stroke:#fb8c00,color:#e65100
-    style Storage fill:#f3e5f5,stroke:#8e24aa,color:#4a148c
+    style Redis fill:#ffebee,stroke:#d32f2f,color:#b71c1c
     style DB fill:#fce4ec,stroke:#d81b60,color:#880e4f
+    style Storage fill:#f3e5f5,stroke:#8e24aa,color:#4a148c
+    style Cleanup fill:#f5f5f5,stroke:#757575,color:#212121
 ```
 
 ---
@@ -117,6 +125,7 @@ flowchart TD
 ![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white)
 ![SQLAlchemy](https://img.shields.io/badge/SQLModel-D71F00?style=flat-square&logo=sqlalchemy&logoColor=white)
 ![Pydantic](https://img.shields.io/badge/Pydantic-E92063?style=flat-square&logo=pydantic&logoColor=white)
+![Redis](https://img.shields.io/badge/Redis-DC382D?style=flat-square&logo=redis&logoColor=white)
 ![SQLite](https://img.shields.io/badge/SQLite-003B57?style=flat-square&logo=sqlite&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat-square&logo=postgresql&logoColor=white)
 ![Cloudflare](https://img.shields.io/badge/Cloudflare_R2-F38020?style=flat-square&logo=cloudflare&logoColor=white)
@@ -131,6 +140,7 @@ flowchart TD
 | **Backend** | FastAPI |
 | **ORM / Models** | SQLModel (SQLAlchemy + Pydantic) |
 | **Database** | SQLite (dev) → PostgreSQL (prod) |
+| **Cache / Sessions** | Redis (session tokens, race-condition protection) |
 | **File storage** | Local filesystem (dev) → Cloudflare R2 (prod) |
 | **Async runtime** | `asyncio`, `aiosqlite`, `aiofiles` |
 | **Config** | `pydantic-settings` |
@@ -168,7 +178,7 @@ flowchart TD
 | **1** | Core backend: upload, codes, multi-file shares, streaming storage, bcrypt passwords, expiry, download limits | ✅ Done |
 | **2** | Download flow: streaming endpoint, password verification, QR codes | ✅ Done |
 | **3** | Cleanup: background task for expired shares and orphaned files | ✅ Done |
-| **4** | Frontend: upload and download pages in HTML + CSS + Vanilla JS | 📋 Planned |
+| **4** | Frontend: upload and download pages in HTML + CSS + Vanilla JS | 🔨 In progress |
 | **5** | Accounts: optional registration, JWT auth, device tracking and caps | 📋 Planned |
 | **6** | Production: Cloudflare R2, PostgreSQL, public deployment | 📋 Planned |
 
@@ -192,8 +202,60 @@ There's no public deployment yet, so running it locally is currently the only wa
 
 - **Python 3.11+**
 - **Git**
+- **Redis**, running locally, via WSL, or via Docker (see below)
 - *(Optional)* `sqlite3` CLI for inspecting the database
 - *(Optional)* A modern code editor like VS Code
+
+### 🔴 Start Redis first
+
+QuickShare needs a running Redis instance. Pick whichever option fits your setup:
+
+<details>
+<summary><b>🐳 Docker (works everywhere)</b></summary>
+
+<br/>
+
+```bash
+docker run -d --name quickshare-redis -p 6379:6379 redis:7
+```
+
+</details>
+
+<details>
+<summary><b>🪟 Windows via WSL</b></summary>
+
+<br/>
+
+```bash
+sudo apt update && sudo apt install redis-server
+sudo service redis-server start
+```
+
+</details>
+
+<details>
+<summary><b>🍎 macOS / 🐧 Linux (native)</b></summary>
+
+<br/>
+
+```bash
+# macOS (Homebrew)
+brew install redis
+brew services start redis
+
+# Debian / Ubuntu
+sudo apt install redis-server
+sudo systemctl start redis-server
+```
+
+</details>
+
+Check that it's up:
+
+```bash
+redis-cli ping
+# PONG
+```
 
 ### Setup
 
@@ -226,7 +288,7 @@ pip install -r requirements.txt
 
 **4. Set up environment variables**
 
-Copy the example file and tweak values as needed.
+Copy the example file and tweak values as needed. Check it for the Redis connection settings, and make sure they match wherever your Redis is running (a default local install listens on `localhost:6379`).
 
 ```bash
 cp .env.example .env
@@ -238,8 +300,8 @@ cp .env.example .env
 uvicorn app.main:app --reload
 ```
 
-Then open the built-in API docs and try an upload.
-
+> [!TIP]
+> Once the server is running, open the built-in API docs in your browser and try an upload straight from there. No frontend needed.
 ---
 
 ## 📄 License
