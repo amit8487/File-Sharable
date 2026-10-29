@@ -1,7 +1,9 @@
+import asyncio
+
 from datetime import datetime, timedelta, UTC
 from uuid import UUID
 
-from fastapi import UploadFile, HTTPException, status
+from fastapi import UploadFile, HTTPException, status, Response
 from fastapi.responses import StreamingResponse
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlmodel import select
@@ -11,7 +13,7 @@ from ..schemas.fileschema import UploadResponse, UploadParams, FileInfo, ShareIn
 from ..core.config import get_settings
 from ..database.models import Share, File
 from .storage import LocalStorage
-from ..core.utils.logic import generate_code, make_stored_filename, check_mime_type
+from ..core.utils.logic import generate_code, make_stored_filename, check_mime_type, QR_code_generator
 from ..core.utils.redis_session import create_session_token, get_session_data, try_mark_counted
 from ..core.security import hashed_password, verify_password
 
@@ -227,4 +229,26 @@ class ShareService:
             headers={
                 "Content-Disposition": f'attachment; filename="{file_record.original_filename}"'
             }
+        )
+
+    async def download_QR_code(self, code:str)->Response:
+        statement = select(Share).where(Share.unique_code == code)
+        share = (await self.session.exec(statement)).first()
+
+        if share is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Share not Found"
+            )
+
+        url = f"http://localhost:8000/share/{share.unique_code}"
+        #loop = asyncio.get_running_loop()
+
+        #qr_bytes = await loop.run_in_executor(None, QR_code_generator, url)
+        qr_bytes = await asyncio.to_thread(QR_code_generator, url)
+
+        return Response(
+            content=qr_bytes,
+            media_type="image/png",
+            headers={"Content-Disposition": f'inline; filename="qr_{code}.png"'}
         )

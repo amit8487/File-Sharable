@@ -42,3 +42,10 @@ async def download_file(
     x_session_token: str|None = Header(default=None),
 ):
     return await service.download_File(code, file_id, x_session_token)
+
+@router.get("/{code}/qr")
+async def qr(
+    code:str,
+    service:ShareServiceDep
+):
+    return await service.download_QR_code(code)
