@@ -42,58 +42,65 @@ class ShareService:
         saved = []
         total_file_size:int = 0
 
-        for file in files:
-            if file == "":
-                continue
+        try:
 
-            original_filename = file.filename or "unnamed"
-            stored_filename = make_stored_filename(original_filename)
-            mime_type = await check_mime_type(file)
-            size:int = await self.storage.save_file(stored_filename, file)
+            for file in files:
+                if file == "":
+                    continue
 
-            if size > settings.max_file_size_bytes:
-                await self.storage.delete_file(stored_filename)
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=f"File {original_filename} exceeds size limit",
-                )
-            
-            total_file_size+=size
+                original_filename = file.filename or "unnamed"
+                stored_filename = make_stored_filename(original_filename)
+                mime_type = await check_mime_type(file)
+                size:int = await self.storage.save_file(stored_filename, file)
 
-            if total_file_size>settings.max_total_file_size_bytes: #Delete file if exceeds size limit
-                for i, *_ in saved:
-                    await self.storage.delete_file(i)
-                await self.storage.delete_file(stored_filename)
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Total size exceeds limit",
-                )
+                if size > settings.max_file_size_bytes:
+                    await self.storage.delete_file(stored_filename)
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail=f"File {original_filename} exceeds size limit",
+                    )
+                
+                total_file_size+=size
 
-            saved.append((stored_filename, original_filename, size, mime_type))
+                if total_file_size>settings.max_total_file_size_bytes: #Delete file if exceeds size limit
+                    for i, *_ in saved:
+                        await self.storage.delete_file(i)
+                    await self.storage.delete_file(stored_filename)
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail="Total size exceeds limit",
+                    )
 
-        share = Share(
-            unique_code = unique_code,
-            password_hash = password_hash,
-            expiry_at = expiry_at,
-            download_limit = download_limit,
-            total_size = total_file_size,
-        )
+                saved.append((stored_filename, original_filename, size, mime_type))
 
-        created_files = []
-        for stored_filename, original_filename, size, mime_type in saved:
-            file_record = File(
-                original_filename = original_filename,
-                stored_filename=stored_filename,
-                file_size = size,
-                mime_type = mime_type,
+            share = Share(
+                unique_code = unique_code,
+                password_hash = password_hash,
+                expiry_at = expiry_at,
+                download_limit = download_limit,
+                total_size = total_file_size,
             )
-            share.files.append(file_record)
-            created_files.append(file_record)
 
-        self.session.add(share)
-        await self.session.commit()
-        await self.session.refresh(share)
-        await self.session.refresh(share, attribute_names=["files"]) #It is used to refresh files table
+            created_files = []
+            for stored_filename, original_filename, size, mime_type in saved:
+                file_record = File(
+                    original_filename = original_filename,
+                    stored_filename=stored_filename,
+                    file_size = size,
+                    mime_type = mime_type,
+                )
+                share.files.append(file_record)
+                created_files.append(file_record)
+
+            self.session.add(share)
+            await self.session.commit()
+            await self.session.refresh(share)
+            await self.session.refresh(share, attribute_names=["files"]) #It is used to refresh files table
+
+        except Exception:
+            for sf, *_ in saved:
+                await self.storage.delete_file(sf)
+            raise
         
         return UploadResponse(
             code = share.unique_code,
