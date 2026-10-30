@@ -2,6 +2,7 @@ import asyncio
 
 from datetime import datetime, timedelta, UTC
 from uuid import UUID
+from urllib.parse import quote
 
 from fastapi import UploadFile, HTTPException, status, Response
 from fastapi.responses import StreamingResponse
@@ -246,7 +247,7 @@ class ShareService:
                 detail="Share not Found"
             )
 
-        url = f"http://localhost:8000/share/{share.unique_code}"
+        url = f"{get_settings().frontend_url}/?code={quote(share.unique_code)}"
         #loop = asyncio.get_running_loop()
 
         #qr_bytes = await loop.run_in_executor(None, QR_code_generator, url)

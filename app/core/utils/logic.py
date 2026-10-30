@@ -9,7 +9,7 @@ from fastapi import UploadFile
 
 #generate secret code
 def generate_code() -> str: 
-    rnd = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijmnopqrstuvwxyz123456789$@#%"
+    rnd = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijmnopqrstuvwxyz123456789"
     secret_code: str = ""
     for _ in range(6):
         secret_code += secrets.choice(rnd)
