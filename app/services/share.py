@@ -81,7 +81,6 @@ class ShareService:
                 total_size = total_file_size,
             )
 
-            created_files = []
             for stored_filename, original_filename, size, mime_type in saved:
                 file_record = File(
                     original_filename = original_filename,
@@ -90,7 +89,6 @@ class ShareService:
                     mime_type = mime_type,
                 )
                 share.files.append(file_record)
-                created_files.append(file_record)
 
             self.session.add(share)
             await self.session.commit()
