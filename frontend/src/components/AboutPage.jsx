@@ -18,6 +18,7 @@ import {
   HardDrive,
   Layers,
   LockKeyhole,
+  MessageSquare,
   QrCode,
   RefreshCw,
   Server,
@@ -248,10 +249,7 @@ export default function AboutPage({ theme, onOpenModal, onGoHome }) {
         </div>
       </section>
 
-      {/* 2. HOW IT WORKS 3D STORYTELLING SEQUENCE */}
-      <HowItWorks3D />
-
-      {/* 3. ABOUT SHARELABS — THE AUTHENTIC STORY & PROBLEM */}
+      {/* 2. WHY SHARELABS — THE AUTHENTIC STORY & PROBLEM */}
       <section className="about-story-section" id="story">
         <div className="section-head text-center">
           <span className="section-kicker">
@@ -329,6 +327,9 @@ export default function AboutPage({ theme, onOpenModal, onGoHome }) {
           </TiltCard>
         </div>
       </section>
+
+      {/* 3. HOW IT WORKS 3D STORYTELLING SEQUENCE */}
+      <HowItWorks3D />
 
       {/* 4. APPLICATION FEATURES WITH 3D GLASS CARDS */}
       <section className="about-features-section" id="features">
@@ -540,7 +541,111 @@ export default function AboutPage({ theme, onOpenModal, onGoHome }) {
         </TiltCard>
       </section>
 
-      {/* 7. FINAL CALL TO ACTION */}
+      {/* 7. CONNECT WITH DEVELOPER SECTION */}
+      <section className="about-connect-section" id="connect">
+        <div className="section-head text-center">
+          <span className="section-kicker">
+            <MessageSquare size={14} /> GET IN TOUCH
+          </span>
+          <h2>Connect with Developer</h2>
+          <p className="connect-lead-headline">
+            Have an idea, suggestion or just want to connect?
+          </p>
+          <p className="connect-lead-desc">
+            I'm always interested in connecting with developers, exchanging ideas, discussing technology and collaborating on interesting projects. Feel free to reach out!
+          </p>
+        </div>
+
+        <div className="connect-cards-grid">
+          {/* X (Twitter) Profile Card */}
+          <TiltCard className="connect-glass-card connect-x-card" maxTilt={6}>
+            <a
+              href="https://x.com/amitpal012"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="connect-card-anchor"
+              aria-label="Follow me on X (opens in a new tab)"
+            >
+              <div className="connect-card-glow connect-glow-x" aria-hidden="true" />
+              <div className="connect-card-top">
+                <div className="connect-platform-badge">
+                  <span className="connect-icon-frame x-icon-frame">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true">
+                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                    </svg>
+                  </span>
+                  <div className="connect-platform-meta">
+                    <span className="platform-tag">PLATFORM</span>
+                    <strong className="platform-name">X (Twitter)</strong>
+                  </div>
+                </div>
+                <span className="connect-handle-pill">@amitpal012</span>
+              </div>
+
+              <div className="connect-card-body">
+                <h3 className="connect-card-title">Follow the build journey</h3>
+                <p className="connect-card-text">
+                  Quick tech updates, product explorations, engineering thoughts, and open development insights.
+                </p>
+              </div>
+
+              <div className="connect-card-footer">
+                <span className="button button-primary connect-cta-btn connect-btn-x">
+                  Follow me on X <ArrowRight size={15} />
+                </span>
+                <span className="connect-ext-wrapper" aria-hidden="true">
+                  <ExternalLink size={16} className="connect-ext-icon" />
+                </span>
+              </div>
+            </a>
+          </TiltCard>
+
+          {/* LinkedIn Profile Card */}
+          <TiltCard className="connect-glass-card connect-linkedin-card" maxTilt={6}>
+            <a
+              href="https://www.linkedin.com/in/amit1608/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="connect-card-anchor"
+              aria-label="Connect on LinkedIn (opens in a new tab)"
+            >
+              <div className="connect-card-glow connect-glow-linkedin" aria-hidden="true" />
+              <div className="connect-card-top">
+                <div className="connect-platform-badge">
+                  <span className="connect-icon-frame linkedin-icon-frame">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true">
+                      <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z" />
+                    </svg>
+                  </span>
+                  <div className="connect-platform-meta">
+                    <span className="platform-tag">PLATFORM</span>
+                    <strong className="platform-name">LinkedIn</strong>
+                  </div>
+                </div>
+                <span className="connect-handle-pill">in/amit1608</span>
+              </div>
+
+              <div className="connect-card-body">
+                <h3 className="connect-card-title">Professional network</h3>
+                <p className="connect-card-text">
+                  Reach out for software engineering opportunities, product architecture discussion, or professional networking.
+                </p>
+              </div>
+
+              <div className="connect-card-footer">
+                <span className="button button-primary connect-cta-btn connect-btn-linkedin">
+                  Connect on LinkedIn <ArrowRight size={15} />
+                </span>
+                <span className="connect-ext-wrapper" aria-hidden="true">
+                  <ExternalLink size={16} className="connect-ext-icon" />
+                </span>
+              </div>
+            </a>
+          </TiltCard>
+        </div>
+      </section>
+
+      {/* 8. FINAL CALL TO ACTION */}
       <section className="about-cta-section">
         <div className="cta-glass-box">
           <div className="cta-ambient-glow" aria-hidden="true" />

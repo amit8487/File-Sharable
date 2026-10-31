@@ -3,8 +3,8 @@ import {
   ArrowDownToLine, ArrowLeft, ArrowRight, Check, CheckCircle2, ChevronDown,
   Clipboard, CloudUpload, Copy, Download, File as FileIcon, FileArchive,
   FileAudio, FileImage, FileText, FileVideo, Fingerprint, HardDrive,
-  KeyRound, LockKeyhole, Moon, QrCode, RefreshCw, ShieldCheck,
-  Sparkles, Sun, Trash2, Upload, X,
+  KeyRound, LockKeyhole, QrCode, RefreshCw, ShieldCheck,
+  Sparkles, Trash2, Upload, X,
 } from 'lucide-react'
 import { downloadQrImage, downloadSharedFile, getShareInfo, qrImageUrl, uploadFiles } from './services/api'
 import { formatBytes, formatDate, getFileKind, MAX_TOTAL_BYTES } from './utils/files'
@@ -29,11 +29,23 @@ function FileGlyph({ file, size = 19 }) {
   return <FileIcon {...props} />
 }
 
-function ThemeButton({ theme, onToggle }) {
+function ThemeToggle({ theme, onToggle }) {
   const isDark = theme === 'dark'
   return (
-    <button className="icon-button theme-button" onClick={onToggle} aria-label={`Switch to ${isDark ? 'light' : 'dark'} theme`} title={`Switch to ${isDark ? 'light' : 'dark'} theme`}>
-      {isDark ? <Sun size={17} /> : <Moon size={17} />}
+    <button
+      type="button"
+      className={`theme-toggle ${isDark ? 'is-dark' : 'is-light'}`}
+      onClick={onToggle}
+      role="switch"
+      aria-checked={isDark}
+      aria-label={isDark ? 'Dark mode enabled. Click to switch to light mode' : 'Light mode enabled. Click to switch to dark mode'}
+      title={isDark ? 'Dark mode is ON (click for light)' : 'Light mode is OFF (click for dark)'}
+    >
+      <span className="theme-toggle-track">
+        <span className="theme-toggle-knob">
+          <span className="theme-toggle-text">{isDark ? 'ON' : 'OFF'}</span>
+        </span>
+      </span>
     </button>
   )
 }
@@ -66,7 +78,7 @@ function Header({ theme, onToggleTheme, onHome, onAbout, currentPath }) {
           </button>
         </nav>
         <span className="secure-label"><ShieldCheck size={14} /> Private by design</span>
-        <ThemeButton theme={theme} onToggle={onToggleTheme} />
+        <ThemeToggle theme={theme} onToggle={onToggleTheme} />
       </div>
     </header>
   )
@@ -370,12 +382,12 @@ function HomeAction({ kind, onClick }) {
   const isUpload = kind === 'upload'
   return (
     <button className={`home-action home-action-${kind}`} onClick={onClick}>
-      <span className="home-action-icon">{isUpload ? <CloudUpload size={27} strokeWidth={1.8} /> : <ArrowDownToLine size={27} strokeWidth={1.8} />}</span>
+      <span className="home-action-icon">{isUpload ? <CloudUpload size={35} strokeWidth={1.8} /> : <ArrowDownToLine size={35} strokeWidth={1.8} />}</span>
       <span className="home-action-copy">
         <strong>{isUpload ? 'Upload' : 'Download'}</strong>
         <small>{isUpload ? 'Share files with anyone' : 'Access files with a code'}</small>
       </span>
-      <span className="home-action-arrow"><ArrowRight size={18} /></span>
+      <span className="home-action-arrow"><ArrowRight size={22} /></span>
     </button>
   )
 }
@@ -401,6 +413,7 @@ function App() {
   const [toast, setToast] = useState('')
   const uploadRequest = useRef(null)
   const closeTimer = useRef(null)
+  const lastFocusedElement = useRef(null)
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme
@@ -439,21 +452,34 @@ function App() {
 
   function openModal(kind) {
     window.clearTimeout(closeTimer.current)
+    lastFocusedElement.current = document.activeElement
     setModalClosing(false)
     setActiveModal(kind)
   }
 
   function closeModal() {
     if (!activeModal || modalClosing) return
+    if (uploading) {
+      const confirmClose = window.confirm('Your files are still uploading. Closing this window will cancel the upload. Do you want to cancel?')
+      if (!confirmClose) return
+      uploadRequest.current?.abort()
+    }
     setModalClosing(true)
+    const isReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches
     closeTimer.current = window.setTimeout(() => {
       setActiveModal(null)
       setModalClosing(false)
-    }, 260)
+    }, isReducedMotion ? 0 : 300)
   }
 
   useEffect(() => {
-    if (!activeModal) return undefined
+    if (!activeModal) {
+      if (lastFocusedElement.current) {
+        lastFocusedElement.current.focus?.()
+        lastFocusedElement.current = null
+      }
+      return undefined
+    }
     const onKeyDown = (event) => {
       if (event.key === 'Escape') closeModal()
     }
@@ -464,7 +490,7 @@ function App() {
       document.body.style.overflow = previousOverflow
       window.removeEventListener('keydown', onKeyDown)
     }
-  }, [activeModal, modalClosing])
+  }, [activeModal, modalClosing, uploading])
 
   function addFiles(incoming) {
     setUploadError('')
@@ -559,13 +585,14 @@ function App() {
               <span className="hero-kicker"><Sparkles size={14} /> SIMPLE FILE TRANSFERS</span>
               <div className="home-brand-emblem"><span><img src="/ShareLabs-icon-192.png" alt="" width="72" height="72" /></span><i /><i /><i /></div>
               <h1>Share anything.<br /><span>Anywhere.</span></h1>
-              <p>Move files between devices with one simple code.<br className="desktop-break" /> No account. No unnecessary steps.</p>
             </section>
 
             <section className="home-actions" aria-label="Choose what you want to do">
               <HomeAction kind="upload" onClick={() => openModal('upload')} />
               <HomeAction kind="download" onClick={() => openModal('download')} />
             </section>
+
+            <p className="home-subtext">Move files between devices with one simple code.<br className="desktop-break" /> No account. No unnecessary steps.</p>
 
             <div className="home-promises">
               <span><ShieldCheck size={15} /> Private by design</span>

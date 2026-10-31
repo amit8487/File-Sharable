@@ -1470,7 +1470,285 @@
 }
 
 /* --------------------------------------------------------------------------
-   7. FINAL CALL TO ACTION
+   7. CONNECT WITH DEVELOPER SECTION
+   -------------------------------------------------------------------------- */
+.about-connect-section {
+  position: relative;
+  z-index: 1;
+  padding: 20px 0 85px;
+}
+
+.connect-lead-headline {
+  margin: 0 0 12px;
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+  color: var(--text-strong);
+}
+
+.connect-lead-desc {
+  max-width: 680px;
+  margin: 0 auto;
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+.connect-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 28px;
+  max-width: 980px;
+  margin: 44px auto 0;
+}
+
+.connect-glass-card {
+  position: relative;
+  border-radius: 28px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.90), rgba(246, 243, 255, 0.68));
+  border: 1.5px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 0 24px 60px rgba(60, 44, 120, 0.12), inset 0 1.5px 0 #fff;
+  backdrop-filter: blur(34px);
+  -webkit-backdrop-filter: blur(34px);
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+:root[data-theme='dark'] .connect-glass-card {
+  background: linear-gradient(145deg, rgba(32, 30, 48, 0.88), rgba(24, 22, 38, 0.72));
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.40), inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+.connect-card-anchor {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 290px;
+  padding: 36px 34px;
+  text-decoration: none;
+  color: inherit;
+  outline: none;
+  position: relative;
+  z-index: 1;
+}
+
+.connect-card-anchor:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+  border-radius: 26px;
+}
+
+.connect-card-glow {
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(48px);
+  opacity: 0.45;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.connect-glow-x {
+  background: radial-gradient(circle, rgba(160, 140, 255, 0.35), transparent 70%);
+}
+
+.connect-glow-linkedin {
+  background: radial-gradient(circle, rgba(10, 102, 194, 0.38), transparent 70%);
+}
+
+.connect-glass-card:hover .connect-card-glow {
+  opacity: 0.8;
+  transform: scale(1.12);
+}
+
+.connect-x-card:hover {
+  border-color: rgba(160, 140, 255, 0.45);
+  box-shadow: 0 30px 75px rgba(100, 75, 200, 0.18), inset 0 1.5px 0 #fff;
+}
+
+:root[data-theme='dark'] .connect-x-card:hover {
+  border-color: rgba(160, 140, 255, 0.40);
+  box-shadow: 0 30px 75px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.20);
+}
+
+.connect-linkedin-card:hover {
+  border-color: rgba(10, 102, 194, 0.45);
+  box-shadow: 0 30px 75px rgba(10, 102, 194, 0.18), inset 0 1.5px 0 #fff;
+}
+
+:root[data-theme='dark'] .connect-linkedin-card:hover {
+  border-color: rgba(10, 102, 194, 0.45);
+  box-shadow: 0 30px 75px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.20);
+}
+
+.connect-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.connect-platform-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.connect-icon-frame {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  transition: transform 0.25s ease;
+}
+
+.connect-card-anchor:hover .connect-icon-frame {
+  transform: scale(1.06);
+}
+
+.x-icon-frame {
+  background: linear-gradient(145deg, #181528, #0e0d18);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+:root[data-theme='dark'] .x-icon-frame {
+  background: linear-gradient(145deg, #2b283d, #1c1a29);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.20);
+}
+
+.linkedin-icon-frame {
+  background: linear-gradient(145deg, #0a66c2, #004182);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 20px rgba(10, 102, 194, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.connect-platform-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.platform-tag {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.1px;
+  color: var(--muted-2);
+}
+
+.platform-name {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.4px;
+  color: var(--text-strong);
+}
+
+.connect-handle-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  background: var(--surface);
+  color: var(--muted);
+  border: 1px solid var(--line);
+  letter-spacing: -0.2px;
+}
+
+.connect-card-body {
+  margin-bottom: 26px;
+}
+
+.connect-card-title {
+  margin: 0 0 8px;
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.4px;
+  color: var(--text-strong);
+}
+
+.connect-card-text {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.connect-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+
+.connect-cta-btn {
+  pointer-events: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 22px;
+  border-radius: 12px;
+  font-size: 13.5px;
+  font-weight: 700;
+  transition: transform 0.25s ease, background 0.25s ease, color 0.25s ease;
+}
+
+.connect-btn-x {
+  background: #181528;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.16);
+}
+
+:root[data-theme='dark'] .connect-btn-x {
+  background: #f6f4ff;
+  color: #111;
+  border-color: #f6f4ff;
+  box-shadow: 0 8px 20px rgba(255, 255, 255, 0.12);
+}
+
+.connect-btn-linkedin {
+  background: #0a66c2;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 8px 20px rgba(10, 102, 194, 0.26);
+}
+
+.connect-card-anchor:hover .connect-cta-btn {
+  transform: translateX(3px);
+}
+
+.connect-ext-wrapper {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--surface-soft);
+  color: var(--muted-2);
+  transition: color 0.25s ease, transform 0.25s ease, background 0.25s ease;
+}
+
+.connect-card-anchor:hover .connect-ext-wrapper {
+  background: var(--accent-soft);
+  color: var(--accent);
+  transform: translate(2px, -2px);
+}
+
+/* --------------------------------------------------------------------------
+   8. FINAL CALL TO ACTION
    -------------------------------------------------------------------------- */
 .about-cta-section {
   position: relative;
@@ -1667,6 +1945,15 @@
   .collab-glass-card {
     padding: 24px;
   }
+  .connect-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+    margin-top: 32px;
+  }
+  .connect-card-anchor {
+    min-height: auto;
+    padding: 28px 24px;
+  }
   .cta-glass-box {
     padding: 40px 20px;
   }
@@ -1680,6 +1967,16 @@
   .about-hero-title {
     font-size: 36px;
     letter-spacing: -1.8px;
+  }
+  .connect-lead-headline {
+    font-size: 18px;
+  }
+  .connect-card-top {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .connect-card-anchor {
+    padding: 24px 20px;
   }
   .how-stage-viewport {
     padding: 20px 14px;
