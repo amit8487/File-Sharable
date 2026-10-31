@@ -8,6 +8,8 @@ from app.api.master_router import master_router
 from app.database.session import create_db_tables
 from app.core.utils.cleanup import cleanup_expired_files
 
+from fastapi.middleware.cors import CORSMiddleware
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
@@ -27,6 +29,16 @@ app = FastAPI(
     lifespan= lifespan_handler
 )
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(master_router)
 

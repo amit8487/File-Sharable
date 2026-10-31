@@ -36,7 +36,7 @@ class Settings(BaseSettings):
     database_url:str = "sqlite+aiosqlite:///database.db"
 
     #frontend link
-    frontend_url: str = "http://localhost:8000"
+    frontend_url: str = "http://localhost:5173"
 
 @lru_cache
 def get_settings() -> Settings:
