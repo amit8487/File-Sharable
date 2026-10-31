@@ -1,6 +1,6 @@
 <div align="center">
 
-# ⚡ QuickShare
+# ⚡ ShareLabs
 
 ### Share files instantly. No accounts. No exposure. Just a code.
 
@@ -22,11 +22,11 @@
 
 ## 📖 About
 
-**QuickShare** is a lightweight file-sharing tool for the moment you just need to hand someone a file. Fast. Without logging into a personal account on a shared device, without exposing your private stuff, and without all the bloat modern file-sharing services pile on.
+**ShareLabs** is a lightweight file-sharing tool for the moment you just need to hand someone a file. Fast. Without logging into a personal account on a shared device, without exposing your private stuff, and without all the bloat modern file-sharing services pile on.
 
 ### 💡 Why I built this
 
-A friend once had to log into their personal WhatsApp on a shared college smartboard just to download a presentation, and ended up exposing their private chats to the whole class. QuickShare exists so that never has to happen again.
+A friend once had to log into their personal WhatsApp on a shared college smartboard just to download a presentation, and ended up exposing their private chats to the whole class. ShareLabs exists so that never has to happen again.
 
 **Upload a file → get a short code (and a QR code) → the other person enters it → they download. Done.**
 
@@ -196,7 +196,7 @@ flowchart TD
 
 ## 🧪 Run locally
 
-There's no public deployment yet, so running it locally is currently the only way to try QuickShare. If you want to poke around the code or contribute, this is for you.
+There's no public deployment yet, so running it locally is currently the only way to try ShareLabs. If you want to poke around the code or contribute, this is for you.
 
 ### Prerequisites
 
@@ -208,7 +208,7 @@ There's no public deployment yet, so running it locally is currently the only wa
 
 ### 🔴 Start Redis first
 
-QuickShare needs a running Redis instance. Pick whichever option fits your setup:
+ShareLabs needs a running Redis instance. Pick whichever option fits your setup:
 
 <details>
 <summary><b>🐳 Docker (works everywhere)</b></summary>
@@ -216,7 +216,7 @@ QuickShare needs a running Redis instance. Pick whichever option fits your setup
 <br/>
 
 ```bash
-docker run -d --name quickshare-redis -p 6379:6379 redis:7
+docker run -d --name sharelabs-redis -p 6379:6379 redis:7
 ```
 
 </details>
@@ -262,8 +262,8 @@ redis-cli ping
 **1. Clone the repo**
 
 ```bash
-git clone https://github.com/<your-username>/quickshare.git
-cd quickshare
+git clone https://github.com/<your-username>/sharelabs.git
+cd sharelabs
 ```
 
 **2. Create and activate a virtual environment**
@@ -314,6 +314,6 @@ Released under the [MIT License](LICENSE).
 
 ⚡ **Visit. Share. Leave.** ⚡
 
-<sub><a href="#-quickshare">⬆ Back to top</a></sub>
+<sub><a href="#-sharelabs">⬆ Back to top</a></sub>
 
 </div>

@@ -4,7 +4,7 @@ import {
   Clipboard, CloudUpload, Copy, Download, File as FileIcon, FileArchive,
   FileAudio, FileImage, FileText, FileVideo, Fingerprint, HardDrive,
   KeyRound, LockKeyhole, Moon, QrCode, RefreshCw, ShieldCheck,
-  Sparkles, Sun, Trash2, Upload, X, Zap,
+  Sparkles, Sun, Trash2, Upload, X,
 } from 'lucide-react'
 import { downloadSharedFile, getShareInfo, qrImageUrl, uploadFiles } from './services/api'
 import { formatBytes, formatDate, getFileKind, MAX_TOTAL_BYTES } from './utils/files'
@@ -39,9 +39,9 @@ function ThemeButton({ theme, onToggle }) {
 function Header({ theme, onToggleTheme, onHome }) {
   return (
     <header className="topbar home-topbar">
-      <button className="brand brand-home" onClick={onHome} aria-label="QuickShare home">
-        <span className="brand-mark"><Zap size={18} fill="currentColor" /></span>
-        <span>quick<span>share</span></span>
+      <button className="brand brand-home" onClick={onHome} aria-label="ShareLabs home">
+        <span className="brand-mark"><img src="/ShareLabs-icon-192.png" alt="" width="34" height="34" /></span>
+        <span>Share<span>Labs</span></span>
       </button>
       <div className="topbar-actions">
         <span className="secure-label"><ShieldCheck size={14} /> Private by design</span>
@@ -321,7 +321,7 @@ function GlassModal({ type, closing, onClose, children }) {
         <div className="glass-modal-shine" aria-hidden="true" />
         <div className="glass-modal-head">
           <div className="glass-modal-heading">
-            <span className="glass-modal-kicker">QUICKSHARE · {isUpload ? 'SEND SOMETHING' : 'PICK SOMETHING UP'}</span>
+            <span className="glass-modal-kicker">SHARELABS · {isUpload ? 'SEND SOMETHING' : 'PICK SOMETHING UP'}</span>
             <h2 id="glass-modal-title">{isUpload ? 'Upload files' : 'Download files'}</h2>
             <p>{isUpload ? 'Choose what to share, then make it yours.' : 'Enter your share code to access the files.'}</p>
           </div>
@@ -349,7 +349,7 @@ function HomeAction({ kind, onClick }) {
 
 function App() {
   const codeFromUrl = useMemo(() => new URLSearchParams(window.location.search).get('code') || '', [])
-  const [theme, setTheme] = useState(() => localStorage.getItem('quickshare-theme') || 'light')
+  const [theme, setTheme] = useState(() => localStorage.getItem('sharelabs-theme') || localStorage.getItem('quickshare-theme') || 'light')
   const [activeModal, setActiveModal] = useState(codeFromUrl ? 'download' : null)
   const [modalClosing, setModalClosing] = useState(false)
   const [files, setFiles] = useState([])
@@ -367,7 +367,7 @@ function App() {
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme
-    localStorage.setItem('quickshare-theme', theme)
+    localStorage.setItem('sharelabs-theme', theme)
   }, [theme])
 
   useEffect(() => () => window.clearTimeout(closeTimer.current), [])
@@ -472,7 +472,7 @@ function App() {
         <main className="home-main">
           <section className="home-hero">
             <span className="hero-kicker"><Sparkles size={14} /> SIMPLE FILE TRANSFERS</span>
-            <div className="home-brand-emblem"><span><Zap size={30} fill="currentColor" /></span><i /><i /><i /></div>
+            <div className="home-brand-emblem"><span><img src="/ShareLabs-icon-192.png" alt="" width="72" height="72" /></span><i /><i /><i /></div>
             <h1>Share anything.<br /><span>Anywhere.</span></h1>
             <p>Move files between devices with one simple code.<br className="desktop-break" /> No account. No unnecessary steps.</p>
           </section>
@@ -492,7 +492,7 @@ function App() {
         </main>
 
         <footer className="footer home-footer">
-          <span className="footer-brand"><span className="brand-mark small-brand"><Zap size={13} fill="currentColor" /></span> quickshare</span>
+          <span className="footer-brand"><span className="brand-mark small-brand"><img src="/ShareLabs-icon-192.png" alt="" width="20" height="20" /></span> ShareLabs</span>
           <span>Simple sharing, without the baggage.</span>
           <span className="footer-credit">Visit. Share. Leave.</span>
         </footer>

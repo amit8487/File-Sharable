@@ -1,5 +1,5 @@
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000').replace(/\/$/, '')
-const CONNECTION_ERROR = 'Could not connect to QuickShare. Check that the API is running.'
+const CONNECTION_ERROR = 'Could not connect to ShareLabs. Check that the API is running.'
 
 function detailMessage(detail, status) {
   if (typeof detail === 'string') return detail
@@ -84,7 +84,7 @@ export async function downloadSharedFile({ code, fileId, sessionToken, filename 
   const objectUrl = URL.createObjectURL(blob)
   const anchor = document.createElement('a')
   anchor.href = objectUrl
-  anchor.download = filename || 'quickshare-download'
+  anchor.download = filename || 'sharelabs-download'
   document.body.appendChild(anchor)
   anchor.click()
   anchor.remove()

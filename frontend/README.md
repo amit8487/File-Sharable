@@ -1,6 +1,6 @@
-# QuickShare React frontend
+# ShareLabs React frontend
 
-A responsive React + Vite frontend for the existing QuickShare FastAPI API. The home screen offers two focused actions (Upload and Download); each opens in a centred, iOS-inspired Light Liquid Glass modal instead of navigating to a separate page.
+A responsive React + Vite frontend for the existing ShareLabs FastAPI API. The home screen offers two focused actions (Upload and Download); each opens in a centred, iOS-inspired Light Liquid Glass modal instead of navigating to a separate page.
 
 ## Features
 
@@ -21,7 +21,7 @@ A responsive React + Vite frontend for the existing QuickShare FastAPI API. The 
 ## Requirements
 
 - Node.js 20.19+ or 22.12+ recommended.
-- The QuickShare FastAPI backend running at `http://127.0.0.1:8000` by default.
+- The ShareLabs FastAPI backend running at `http://127.0.0.1:8000` by default.
 - Redis running, because the existing backend uses Redis for download-session tokens.
 
 ## Run the frontend
@@ -96,7 +96,7 @@ The backend's `app/main.py` now enables CORS for:
 - `http://127.0.0.1:5173`
 - The origin configured by `FRONTEND_URL`
 
-The backend default `FRONTEND_URL` was changed to `http://localhost:5173`, so its QR endpoint generates a link to the Vite frontend during local development. The root `.env.example` documents this setting. For deployment, set `FRONTEND_URL` to the exact public React site origin (no trailing slash), for example `https://quickshare.example.com`.
+The backend default `FRONTEND_URL` was changed to `http://localhost:5173`, so its QR endpoint generates a link to the Vite frontend during local development. The root `.env.example` documents this setting. For deployment, set `FRONTEND_URL` to the exact public React site origin (no trailing slash), for example `https://sharelabs.example.com`.
 
 In production, also set `VITE_API_BASE_URL` at frontend build time to the public FastAPI API origin, and configure `FRONTEND_URL` on the backend to the public frontend origin. Ensure the API is served over HTTPS when the frontend is HTTPS.
 
