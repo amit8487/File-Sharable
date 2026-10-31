@@ -21,6 +21,7 @@
   --accent-soft: #f0edff;
   --success: #299a73;
   --danger: #c84f63;
+  --close-hover: #e5334b;
   --shadow: 0 18px 60px rgba(46, 35, 100, .07);
   --shadow-soft: 0 8px 28px rgba(46, 35, 100, .05);
 }
@@ -43,6 +44,7 @@
   --accent-soft: #2a2547;
   --success: #58c69e;
   --danger: #ff8193;
+  --close-hover: #ff5c70;
   --shadow: 0 18px 60px rgba(0, 0, 0, .25);
   --shadow-soft: 0 8px 28px rgba(0, 0, 0, .18);
 }
@@ -333,6 +335,15 @@ a { color: inherit; }
 :root[data-theme='dark'] .glass-upload-card .select-wrap select option { background-color: var(--surface-solid); color: var(--text); }
 :root[data-theme='dark'] .glass-upload-card .select-wrap select option:checked { background-color: var(--accent-dark); color: #fff; }
 :root[data-theme='dark'] .glass-upload-card .share-code-panel, :root[data-theme='dark'] .glass-upload-card .qr-panel, :root[data-theme='dark'] .glass-upload-card .share-meta-item { border-color: rgba(255,255,255,.13); background: rgba(255,255,255,.06); }
+
+.glass-close:hover:not(:disabled),
+.glass-close:focus-visible,
+:root[data-theme='dark'] .glass-close:hover:not(:disabled),
+:root[data-theme='dark'] .glass-close:focus-visible {
+  color: var(--close-hover);
+  border-color: var(--close-hover);
+  background: color-mix(in srgb, var(--close-hover) 14%, transparent);
+}
 
 @media (max-width: 900px) {
   .glass-modal { width: min(760px, 78vw); min-width: min(0px, calc(100vw - 28px)); }
