@@ -7,7 +7,7 @@ A responsive React + Vite frontend for the existing ShareLabs FastAPI API. The h
 - Light and dark themes (preference is saved in the browser).
 - Drag-and-drop and multi-file selection.
 - Combined 100 MB client-side size check, matching the default backend limit.
-- Optional password, expiry (1/2/3/5 days), and download limit (1/2/3/5).
+- Optional password, expiry (1/2/3/4/5 days), and download limit (1/2/3/4/5).
 - Upload progress using `XMLHttpRequest` upload events.
 - Local previews for image, PDF, and text files before uploading.
 - Share-success screen with six-character code, copyable link, backend-generated QR image, expiry, and file list.

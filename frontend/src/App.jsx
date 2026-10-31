@@ -6,11 +6,11 @@ import {
   KeyRound, LockKeyhole, Moon, QrCode, RefreshCw, ShieldCheck,
   Sparkles, Sun, Trash2, Upload, X,
 } from 'lucide-react'
-import { downloadSharedFile, getShareInfo, qrImageUrl, uploadFiles } from './services/api'
+import { downloadQrImage, downloadSharedFile, getShareInfo, qrImageUrl, uploadFiles } from './services/api'
 import { formatBytes, formatDate, getFileKind, MAX_TOTAL_BYTES } from './utils/files'
 
-const EXPIRY_OPTIONS = [1, 2, 3, 5]
-const DOWNLOAD_OPTIONS = [1, 2, 3, 5]
+const EXPIRY_OPTIONS = [1, 2, 3, 4, 5]
+const DOWNLOAD_OPTIONS = [1, 2, 3, 4, 5]
 
 function makeId() {
   return globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`
@@ -139,7 +139,7 @@ function SettingsPanel({ password, setPassword, expiryDays, setExpiryDays, downl
   const [showPassword, setShowPassword] = useState(false)
   return (
     <section className="settings-panel">
-      <div className="settings-heading"><div><span className="eyebrow">YOUR SHARE</span><h3>Make it yours</h3></div><span className="settings-badge">Optional settings</span></div>
+      <div className="settings-heading"><div><span className="eyebrow">YOUR SHARE</span><h3>Make it yours</h3></div></div>
       <label className="field-label" htmlFor="share-password"><span><LockKeyhole size={15} /> Password protection</span><small>Extra layer of privacy</small></label>
       <div className="password-field">
         <input id="share-password" type={showPassword ? 'text' : 'password'} value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Add a password (optional)" disabled={disabled} autoComplete="new-password" />
@@ -172,6 +172,7 @@ function UploadProgress({ progress, onCancel }) {
 
 function ShareSuccess({ result, onReset, notify }) {
   const [qrFailed, setQrFailed] = useState(false)
+  const [qrDownloading, setQrDownloading] = useState(false)
   const shareUrl = `${window.location.origin}/?code=${encodeURIComponent(result.code)}`
   const copy = async (value, message) => {
     try {
@@ -179,6 +180,17 @@ function ShareSuccess({ result, onReset, notify }) {
       notify(message)
     } catch {
       notify('Clipboard access was blocked by your browser.')
+    }
+  }
+  async function handleQrDownload() {
+    setQrDownloading(true)
+    try {
+      await downloadQrImage(result.code)
+      notify('QR code downloaded')
+    } catch (error) {
+      notify(error.message || 'Could not download the QR code.')
+    } finally {
+      setQrDownloading(false)
     }
   }
   return (
@@ -194,7 +206,7 @@ function ShareSuccess({ result, onReset, notify }) {
         <div className="qr-panel">
           <span className="eyebrow">SCAN TO OPEN</span>
           {!qrFailed ? <img className="qr-image" src={qrImageUrl(result.code)} alt={`QR code for share ${result.code}`} onError={() => setQrFailed(true)} /> : <div className="qr-fallback"><QrCode size={36} /><span>QR code unavailable</span></div>}
-          <a className="qr-download" href={qrImageUrl(result.code)} target="_blank" rel="noreferrer"><ArrowDownToLine size={14} /> Open QR image</a>
+          <button type="button" className="qr-download" onClick={handleQrDownload} disabled={qrDownloading}>{qrDownloading ? <span className="spinner" /> : <ArrowDownToLine size={14} />} Download QR</button>
         </div>
       </div>
       <div className="share-meta-grid">
@@ -503,7 +515,7 @@ function App() {
           {activeModal === 'upload' ? (
             result ? <div className="glass-upload-card glass-upload-success"><ShareSuccess result={result} onReset={resetUpload} notify={notify} /></div> : (
               <div className="upload-card glass-upload-card">
-                <div className="card-heading"><div><span className="eyebrow">STEP 01 · START HERE</span><h2>What are we sharing?</h2><p>Add one file or a whole bundle. We'll keep them together.</p></div><span className="step-indicator">01 <i /> 03</span></div>
+                <div className="card-heading"><div><h2>What are we sharing?</h2></div></div>
                 <DropZone onFiles={addFiles} disabled={uploading} />
                 {files.length > 0 && <div className="selected-files-section"><div className="selected-heading"><div><strong>Selected files</strong><span>{files.length} {files.length === 1 ? 'file' : 'files'}</span></div><button className="clear-button" onClick={() => setFiles([])} disabled={uploading}>Clear all</button></div><div className="selected-files-list">{files.map((item) => <SelectedFileRow key={item.id} item={item} onRemove={removeFile} onPreview={setPreviewItem} disabled={uploading} />)}</div><div className={`total-size ${totalSize > MAX_TOTAL_BYTES ? 'size-error' : ''}`}><span><HardDrive size={14} /> Total size</span><strong>{formatBytes(totalSize)} <em>/ 100 MB</em></strong></div></div>}
                 {totalSize > MAX_TOTAL_BYTES && <div className="inline-error upload-error"><HardDrive size={16} /> The combined file size is over 100 MB. Remove one or more files to continue.</div>}

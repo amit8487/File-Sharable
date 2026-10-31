@@ -91,6 +91,28 @@ export async function downloadSharedFile({ code, fileId, sessionToken, filename 
   window.setTimeout(() => URL.revokeObjectURL(objectUrl), 30_000)
 }
 
+export async function downloadQrImage(code) {
+  let response
+  try {
+    response = await fetch(qrImageUrl(code))
+  } catch (error) {
+    if (error instanceof TypeError) throw createApiError(0, CONNECTION_ERROR)
+    throw error
+  }
+  if (!response.ok) throw await readError(response)
+
+  const blob = await response.blob()
+  const objectUrl = URL.createObjectURL(blob)
+  const safeCode = String(code).replace(/[^a-zA-Z0-9_-]/g, '')
+  const anchor = document.createElement('a')
+  anchor.href = objectUrl
+  anchor.download = safeCode ? `ShareLabs-QR-${safeCode}.png` : 'ShareLabs-QR.png'
+  document.body.appendChild(anchor)
+  anchor.click()
+  anchor.remove()
+  window.setTimeout(() => URL.revokeObjectURL(objectUrl), 30_000)
+}
+
 export function qrImageUrl(code) {
   return apiUrl(`/share/${encodeURIComponent(code)}/qr`)
 }
