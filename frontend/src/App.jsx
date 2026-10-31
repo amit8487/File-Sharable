@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, lazy, Suspense } from 'react'
 import {
   ArrowDownToLine, ArrowLeft, ArrowRight, Check, CheckCircle2, ChevronDown,
   Clipboard, CloudUpload, Copy, Download, File as FileIcon, FileArchive,
@@ -8,6 +8,8 @@ import {
 } from 'lucide-react'
 import { downloadQrImage, downloadSharedFile, getShareInfo, qrImageUrl, uploadFiles } from './services/api'
 import { formatBytes, formatDate, getFileKind, MAX_TOTAL_BYTES } from './utils/files'
+
+const AboutPage = lazy(() => import('./components/AboutPage'))
 
 const EXPIRY_OPTIONS = [1, 2, 3, 4, 5]
 const DOWNLOAD_OPTIONS = [1, 2, 3, 4, 5]
@@ -36,7 +38,8 @@ function ThemeButton({ theme, onToggle }) {
   )
 }
 
-function Header({ theme, onToggleTheme, onHome }) {
+function Header({ theme, onToggleTheme, onHome, onAbout, currentPath }) {
+  const isAbout = currentPath === '/about'
   return (
     <header className="topbar home-topbar">
       <button className="brand brand-home" onClick={onHome} aria-label="ShareLabs home">
@@ -44,6 +47,24 @@ function Header({ theme, onToggleTheme, onHome }) {
         <span>Share<span>Labs</span></span>
       </button>
       <div className="topbar-actions">
+        <nav className="topbar-nav" aria-label="Main navigation">
+          <button
+            type="button"
+            className={`nav-link ${!isAbout ? 'active' : ''}`}
+            onClick={onHome}
+            aria-current={!isAbout ? 'page' : undefined}
+          >
+            Home
+          </button>
+          <button
+            type="button"
+            className={`nav-link ${isAbout ? 'active' : ''}`}
+            onClick={onAbout}
+            aria-current={isAbout ? 'page' : undefined}
+          >
+            About
+          </button>
+        </nav>
         <span className="secure-label"><ShieldCheck size={14} /> Private by design</span>
         <ThemeButton theme={theme} onToggle={onToggleTheme} />
       </div>
@@ -361,6 +382,10 @@ function HomeAction({ kind, onClick }) {
 
 function App() {
   const codeFromUrl = useMemo(() => new URLSearchParams(window.location.search).get('code') || '', [])
+  const [currentPath, setCurrentPath] = useState(() => {
+    const raw = window.location.pathname.toLowerCase().replace(/\/$/, '') || '/'
+    return raw === '/about' ? '/about' : '/'
+  })
   const [theme, setTheme] = useState(() => localStorage.getItem('sharelabs-theme') || localStorage.getItem('quickshare-theme') || 'light')
   const [activeModal, setActiveModal] = useState(codeFromUrl ? 'download' : null)
   const [modalClosing, setModalClosing] = useState(false)
@@ -383,6 +408,30 @@ function App() {
   }, [theme])
 
   useEffect(() => () => window.clearTimeout(closeTimer.current), [])
+
+  useEffect(() => {
+    const onPopState = () => {
+      const raw = window.location.pathname.toLowerCase().replace(/\/$/, '') || '/'
+      setCurrentPath(raw === '/about' ? '/about' : '/')
+    }
+    window.addEventListener('popstate', onPopState)
+    return () => window.removeEventListener('popstate', onPopState)
+  }, [])
+
+  useEffect(() => {
+    if (currentPath === '/about') {
+      document.title = 'ShareLabs — About | 3D Interactive Overview'
+    } else {
+      document.title = 'ShareLabs — Share files instantly'
+    }
+  }, [currentPath])
+
+  function navigate(path) {
+    if (currentPath !== path) {
+      window.history.pushState({}, '', path)
+      setCurrentPath(path)
+    }
+  }
 
   const totalSize = files.reduce((total, item) => total + item.file.size, 0)
   const canUpload = files.length > 0 && totalSize <= MAX_TOTAL_BYTES && !uploading
@@ -443,7 +492,6 @@ function App() {
       setProgress(100)
       setResult({ ...response, downloadLimit, passwordProtected: Boolean(password) })
     } catch (error) {
-      // Keep upload validation details distinct from transport errors.
       if (error.status === 400) setUploadError(error.detail)
       else if (error.status === 422) setUploadError('Expiry and download limit must be between 1 and 5.')
       else if (error.status === 0) setUploadError(error.message)
@@ -465,48 +513,80 @@ function App() {
   }
 
   function goHome() {
+    navigate('/')
     if (!codeFromUrl) {
       const cleanUrl = `${window.location.pathname}${window.location.hash}`
-      window.history.replaceState({}, '', cleanUrl)
+      window.history.replaceState({}, '', '/')
     }
+    closeModal()
+  }
+
+  function goAbout() {
+    navigate('/about')
     closeModal()
   }
 
   const toggleTheme = () => setTheme((current) => current === 'dark' ? 'light' : 'dark')
 
   return (
-    <div className="app-shell home-shell">
+    <div className={`app-shell home-shell ${currentPath === '/about' ? 'about-shell' : ''}`}>
       <div className="ambient ambient-one" /><div className="ambient ambient-two" />
       <div className="home-orb home-orb-one" /><div className="home-orb home-orb-two" />
       <div className="site-wrap home-site-wrap">
-        <Header theme={theme} onToggleTheme={toggleTheme} onHome={goHome} />
+        <Header
+          theme={theme}
+          onToggleTheme={toggleTheme}
+          onHome={goHome}
+          onAbout={goAbout}
+          currentPath={currentPath}
+        />
 
-        <main className="home-main">
-          <section className="home-hero">
-            <span className="hero-kicker"><Sparkles size={14} /> SIMPLE FILE TRANSFERS</span>
-            <div className="home-brand-emblem"><span><img src="/ShareLabs-icon-192.png" alt="" width="72" height="72" /></span><i /><i /><i /></div>
-            <h1>Share anything.<br /><span>Anywhere.</span></h1>
-            <p>Move files between devices with one simple code.<br className="desktop-break" /> No account. No unnecessary steps.</p>
-          </section>
+        {currentPath === '/about' ? (
+          <Suspense fallback={
+            <div className="about-loading-placeholder" style={{ minHeight: '60vh', display: 'grid', placeItems: 'center' }}>
+              <span className="spinner" />
+            </div>
+          }>
+            <AboutPage
+              theme={theme}
+              onOpenModal={openModal}
+              onGoHome={goHome}
+            />
+          </Suspense>
+        ) : (
+          <main className="home-main">
+            <section className="home-hero">
+              <span className="hero-kicker"><Sparkles size={14} /> SIMPLE FILE TRANSFERS</span>
+              <div className="home-brand-emblem"><span><img src="/ShareLabs-icon-192.png" alt="" width="72" height="72" /></span><i /><i /><i /></div>
+              <h1>Share anything.<br /><span>Anywhere.</span></h1>
+              <p>Move files between devices with one simple code.<br className="desktop-break" /> No account. No unnecessary steps.</p>
+            </section>
 
-          <section className="home-actions" aria-label="Choose what you want to do">
-            <HomeAction kind="upload" onClick={() => openModal('upload')} />
-            <HomeAction kind="download" onClick={() => openModal('download')} />
-          </section>
+            <section className="home-actions" aria-label="Choose what you want to do">
+              <HomeAction kind="upload" onClick={() => openModal('upload')} />
+              <HomeAction kind="download" onClick={() => openModal('download')} />
+            </section>
 
-          <div className="home-promises">
-            <span><ShieldCheck size={15} /> Private by design</span>
-            <i />
-            <span><LockKeyhole size={14} /> Optional password</span>
-            <i />
-            <span><RefreshCw size={14} /> Links that expire</span>
-          </div>
-        </main>
+            <div className="home-promises">
+              <span><ShieldCheck size={15} /> Private by design</span>
+              <i />
+              <span><LockKeyhole size={14} /> Optional password</span>
+              <i />
+              <span><RefreshCw size={14} /> Links that expire</span>
+            </div>
+          </main>
+        )}
 
         <footer className="footer home-footer">
           <span className="footer-brand"><span className="brand-mark small-brand"><img src="/ShareLabs-icon-192.png" alt="" width="20" height="20" /></span> ShareLabs</span>
           <span>Simple sharing, without the baggage.</span>
-          <span className="footer-credit">Visit. Share. Leave.</span>
+          <span className="footer-credit">
+            {currentPath === '/about' ? (
+              <button type="button" className="text-button" onClick={goHome}>← Return to Home</button>
+            ) : (
+              <button type="button" className="text-button" onClick={goAbout}>About ShareLabs →</button>
+            )}
+          </span>
         </footer>
       </div>
 
