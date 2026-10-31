@@ -77,7 +77,6 @@ function Header({ theme, onToggleTheme, onHome, onAbout, currentPath }) {
             About
           </button>
         </nav>
-        <span className="secure-label"><ShieldCheck size={14} /> Private by design</span>
         <ThemeToggle theme={theme} onToggle={onToggleTheme} />
       </div>
     </header>
@@ -387,7 +386,6 @@ function HomeAction({ kind, onClick }) {
         <strong>{isUpload ? 'Upload' : 'Download'}</strong>
         <small>{isUpload ? 'Share files with anyone' : 'Access files with a code'}</small>
       </span>
-      <span className="home-action-arrow"><ArrowRight size={22} /></span>
     </button>
   )
 }
